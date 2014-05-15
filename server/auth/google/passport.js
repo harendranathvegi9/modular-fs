@@ -1,31 +1,28 @@
-exports.setup = function (User, config) {
+exports.setup = function (Account, config) {
   var passport = require('passport');
   var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 
-  passport.use(new GoogleStrategy({
-      clientID: config.google.clientID,
-      clientSecret: config.google.clientSecret,
-      callbackURL: config.google.callbackURL
-    },
+  passport.use(new GoogleStrategy(
+    config.google,
     function(accessToken, refreshToken, profile, done) {
-      User.findOne({
-        'google.id': profile.id
-      }, function(err, user) {
-        if (!user) {
-          user = new User({
-            name: profile.displayName,
-            email: profile.emails[0].value,
+      Account.findOne({
+        'provider': 'google',
+        'socialId': profile.id
+      }, 
+      function(err, account) {
+        if (!account) {
+          account = new Account({
             role: 'user',
-            username: profile.username,
             provider: 'google',
+            socialId: profile.id,
             google: profile._json
           });
-          user.save(function(err) {
+          account.save(function(err) {
             if (err) done(err);
-            return done(err, user);
+            return done(err, account);
           });
         } else {
-          return done(err, user);
+          return done(err, account);
         }
       });
     }

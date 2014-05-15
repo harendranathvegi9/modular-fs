@@ -3,13 +3,16 @@
 var express = require('express');
 var passport = require('passport');
 var config = require('../config');
-var User = require('../api/user/user.model');
+var Account = require('./account.model');
+
+
 
 // Passport Configuration
-require('./local/passport').setup(User, config);
-require('./facebook/passport').setup(User, config);
-require('./google/passport').setup(User, config);
-require('./twitter/passport').setup(User, config);
+require('./local/passport').setup(Account, config);
+require('./social/passport').setup(Account, require('passport-facebook').Strategy, config, 'facebook');
+//require('./facebook/passport').setup(Account, config);
+require('./google/passport').setup(Account, config);
+require('./twitter/passport').setup(Account, config);
 
 var router = express.Router();
 

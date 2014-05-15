@@ -6,8 +6,7 @@ var crypto = require('crypto');
 
 var authTypes = ['github', 'twitter', 'facebook', 'google'];
 
-var UserSchema = new Schema({
-  name: String,
+var AccountSchema = new Schema({
   email: { type: String, lowercase: true },
   role: {
     type: String,
@@ -16,7 +15,8 @@ var UserSchema = new Schema({
   hashedPassword: String,
   provider: String,
   salt: String,
-//  facebook: {},
+  socialId: String,
+  facebook: {},
   twitter: {},
   github: {},
   google: {}
@@ -25,7 +25,7 @@ var UserSchema = new Schema({
 /**
  * Virtuals
  */
-UserSchema
+AccountSchema
   .virtual('password')
   .set(function(password) {
     this._password = password;
@@ -36,18 +36,10 @@ UserSchema
     return this._password;
   });
 
-// Public profile information
-UserSchema
-  .virtual('profile')
-  .get(function() {
-    return {
-      'name': this.name,
-      'role': this.role
-    };
-  });
+
 
 // Non-sensitive info we'll be putting in the token
-UserSchema
+AccountSchema
   .virtual('token')
   .get(function() {
     return {
@@ -61,7 +53,7 @@ UserSchema
  */
 
 // Validate empty email
-UserSchema
+AccountSchema
   .path('email')
   .validate(function(email) {
     // if you are authenticating by any of the oauth strategies, don't validate
@@ -70,7 +62,7 @@ UserSchema
   }, 'Email cannot be blank');
 
 // Validate empty password
-UserSchema
+AccountSchema
   .path('hashedPassword')
   .validate(function(hashedPassword) {
     // if you are authenticating by any of the oauth strategies, don't validate
@@ -79,7 +71,7 @@ UserSchema
   }, 'Password cannot be blank');
 
 // Validate email is not taken
-UserSchema
+AccountSchema
   .path('email')
   .validate(function(value, respond) {
     var self = this;
@@ -100,10 +92,9 @@ var validatePresenceOf = function(value) {
 /**
  * Pre-save hook
  */
-UserSchema
+AccountSchema
   .pre('save', function(next) {
 
-    console.log(this);
     if (!this.isNew) return next();
 
     if (!validatePresenceOf(this.hashedPassword) && authTypes.indexOf(this.provider) === -1)
@@ -112,10 +103,43 @@ UserSchema
       next();
   });
 
+
+
+AccountSchema.static('findOrSave',
+  function(provider, accessToken, refreshToken, profile, done) {
+      var Account = this;
+      Account.findOne({
+        'provider': provider,
+        'socialId': profile.id
+      }, 
+      function(err, account) {
+        if (err) {
+          return done(err);
+        }
+        if (!account) {
+
+            account = new Account({
+            role: 'user',
+            provider: provider,
+            socialId: profile.id,
+            facebook: profile._json
+          });
+          account.save(function(err) {
+            if (err) done(err);
+            return done(err, account);
+          });
+        } else {
+          return done(err, account);
+        }
+      })
+    }
+    );
+
+
 /**
  * Methods
  */
-UserSchema.methods = {
+AccountSchema.methods = {
   /**
    * Authenticate - check if the passwords are the same
    *
@@ -151,4 +175,5 @@ UserSchema.methods = {
   }
 };
 
-module.exports = mongoose.model('User', UserSchema);
+
+module.exports = mongoose.model('Account', AccountSchema);

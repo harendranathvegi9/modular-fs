@@ -43,8 +43,8 @@ var all = {
   },
 
   twitter: {
-    clientID:     requiredProcessEnv('TWITTER_ID'),
-    clientSecret: requiredProcessEnv('TWITTER_SECRET'),
+    consumerKey:     requiredProcessEnv('TWITTER_ID'),
+    consumerSecret: requiredProcessEnv('TWITTER_SECRET'),
     callbackURL:  'http://localhost:9000/auth/twitter/callback'
   },
 
