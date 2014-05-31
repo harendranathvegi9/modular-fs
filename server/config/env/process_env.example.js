@@ -6,8 +6,13 @@ module.exports = {
   SESSION_SECRET: "angular-fullstack",
   FACEBOOK_ID: "",
   FACEBOOK_SECRET: "",
+  FACEBOOK_SCOPE: ['email', 'user_about_me'],
   TWITTER_ID: "",
   TWITTER_SECRET: "",
   GOOGLE_ID: "",
-  GOOGLE_SECRET: ""
+  GOOGLE_SECRET: "",
+  GOOGLE_SCOPE: [
+      'https://www.googleapis.com/auth/userinfo.profile',
+      'https://www.googleapis.com/auth/userinfo.email'
+    ]
 }

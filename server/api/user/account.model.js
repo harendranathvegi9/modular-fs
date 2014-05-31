@@ -3,23 +3,19 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var crypto = require('crypto');
+var _ = require('lodash');
+var User = require('./user.model');
 
 var authTypes = ['github', 'twitter', 'facebook', 'google'];
 
 var AccountSchema = new Schema({
   email: { type: String, lowercase: true },
-  role: {
-    type: String,
-    default: 'user'
-  },
   hashedPassword: String,
   provider: String,
   salt: String,
   socialId: String,
-  facebook: {},
-  twitter: {},
-  github: {},
-  google: {}
+  profile: {},
+  user : {type: Schema.Types.ObjectId, ref: 'User' }
 });
 
 /**
@@ -42,9 +38,10 @@ AccountSchema
 AccountSchema
   .virtual('token')
   .get(function() {
+    console.log(this.user.role);
     return {
       '_id': this._id,
-      'role': this.role
+      'role': this.user.role
     };
   });
 
@@ -103,11 +100,44 @@ AccountSchema
       next();
   });
 
+AccountSchema
+  .pre('save', function(next) {
+    var self = this;
 
+    if (!self.user) {
+      if (self.provider === 'twitter') {
+        self.createAndAddUser(next);
+      }
+      else {
+        User.findOne({
+          email: self.profile.email
+          },
+          function(err, user) {
+            if (!user) 
+              self.createAndAddUser(next);       
+            else
+              self.addUser(user,next);
+          }
+        );
+      }
+    }
+    else next();
+    
+});
 
-AccountSchema.static('findOrSave',
-  function(provider, accessToken, refreshToken, profile, done) {
-      var Account = this;
+/**
+ * FindOrSave - check if an account already exist and if not create one
+ *
+ * @param {String} provider
+ * @param {String} accessToken
+ * @param {String} refreshToken
+ * @param {Json} profile
+ * @return {Done}
+ * @api public
+ */
+AccountSchema.static('findOrCreate',
+  _.curry(function(provider, accessToken, refreshToken, profile, done) {
+      var Account = mongoose.model('Account');
       Account.findOne({
         'provider': provider,
         'socialId': profile.id
@@ -117,12 +147,11 @@ AccountSchema.static('findOrSave',
           return done(err);
         }
         if (!account) {
-
             account = new Account({
             role: 'user',
             provider: provider,
             socialId: profile.id,
-            facebook: profile._json
+            profile: profile._json
           });
           account.save(function(err) {
             if (err) done(err);
@@ -132,7 +161,7 @@ AccountSchema.static('findOrSave',
           return done(err, account);
         }
       })
-    }
+    })
     );
 
 
@@ -172,7 +201,48 @@ AccountSchema.methods = {
     if (!password || !this.salt) return '';
     var salt = new Buffer(this.salt, 'base64');
     return crypto.pbkdf2Sync(password, salt, 10000, 64).toString('base64');
+  },
+
+
+  /**
+   * Create and add user from the profile
+   *
+   * @param {Function} next
+   * @return {next}
+   * @api public
+   */
+  createAndAddUser: function(next){
+    var self = this;
+    var user = new User({
+          name: self.profile.name,
+          email: self.profile.email||'',
+          role: self.profile.role||'',
+          accounts : [self._id]
+        });
+    user.save(function(err){
+          if (err) console.log(err);
+          self.user = user._id;
+          return next();
+    });
+  },
+
+  /**
+   * Add user from the profile
+   *
+   * @param {Json} user
+   * @param {Function} next
+   * @return {next}
+   * @api public
+   */
+  addUser: function(user, next){
+    var self = this;
+    user.accounts.push(self);
+    user.save(function(err){
+      self.user = user;
+      return next();
+    });
   }
+
 };
 
 

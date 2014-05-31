@@ -3,8 +3,11 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var crypto = require('crypto');
+var _ = require('lodash');
+
 
 var authTypes = ['github', 'twitter', 'facebook', 'google'];
+
 
 var UserSchema = new Schema({
   name: String,
@@ -13,70 +16,14 @@ var UserSchema = new Schema({
     type: String,
     default: 'user'
   },
-  hashedPassword: String,
-  provider: String,
-  salt: String,
-//  facebook: {},
-  twitter: {},
-  github: {},
-  google: {}
+  accounts : [{type: Schema.Types.ObjectId, ref: 'Account' }]
 });
 
-/**
- * Virtuals
- */
-UserSchema
-  .virtual('password')
-  .set(function(password) {
-    this._password = password;
-    this.salt = this.makeSalt();
-    this.hashedPassword = this.encryptPassword(password);
-  })
-  .get(function() {
-    return this._password;
-  });
-
-// Public profile information
-UserSchema
-  .virtual('profile')
-  .get(function() {
-    return {
-      'name': this.name,
-      'role': this.role
-    };
-  });
-
-// Non-sensitive info we'll be putting in the token
-UserSchema
-  .virtual('token')
-  .get(function() {
-    return {
-      '_id': this._id,
-      'role': this.role
-    };
-  });
 
 /**
  * Validations
  */
 
-// Validate empty email
-UserSchema
-  .path('email')
-  .validate(function(email) {
-    // if you are authenticating by any of the oauth strategies, don't validate
-    if (authTypes.indexOf(this.provider) !== -1) return true;
-    return email.length;
-  }, 'Email cannot be blank');
-
-// Validate empty password
-UserSchema
-  .path('hashedPassword')
-  .validate(function(hashedPassword) {
-    // if you are authenticating by any of the oauth strategies, don't validate
-    if (authTypes.indexOf(this.provider) !== -1) return true;
-    return hashedPassword.length;
-  }, 'Password cannot be blank');
 
 // Validate email is not taken
 UserSchema
@@ -98,57 +45,36 @@ var validatePresenceOf = function(value) {
 };
 
 /**
- * Pre-save hook
+ * Pre-remove hook
  */
-UserSchema
-  .pre('save', function(next) {
 
-    console.log(this);
-    if (!this.isNew) return next();
 
-    if (!validatePresenceOf(this.hashedPassword) && authTypes.indexOf(this.provider) === -1)
-      next(new Error('Invalid password'));
-    else
-      next();
+UserSchema.post('remove', function (user) {
+  
+  mongoose.model('Account')
+    .find({user : user._id}, function(err, accounts){
+      if (err) console.log('Error: '+err);
+      _.invoke(accounts,'remove');
+    });
+});
+
+
+UserSchema.static('findByAccountId', function(Id, callback){
+  return mongoose.model('Account').findById(Id)
+    .populate('user')
+    .exec(function(err, account) {
+      if (!account) return callback(err, null);
+      var user = account.user;
+      user.provider = account.provider;
+      callback(err, user);
+    });
   });
 
 /**
  * Methods
  */
 UserSchema.methods = {
-  /**
-   * Authenticate - check if the passwords are the same
-   *
-   * @param {String} plainText
-   * @return {Boolean}
-   * @api public
-   */
-  authenticate: function(plainText) {
-    return this.encryptPassword(plainText) === this.hashedPassword;
-  },
 
-  /**
-   * Make salt
-   *
-   * @return {String}
-   * @api public
-   */
-  makeSalt: function() {
-    return crypto.randomBytes(16).toString('base64');
-  },
-
-  /**
-   * Encrypt password
-   *
-   * @param {String} password
-   * @return {String}
-   * @api public
-   */
-  encryptPassword: function(password) {
-    if (!password || !this.salt) return '';
-    var salt = new Buffer(this.salt, 'base64');
-    return crypto.pbkdf2Sync(password, salt, 10000, 64).toString('base64');
-  }
 };
 
 module.exports = mongoose.model('User', UserSchema);

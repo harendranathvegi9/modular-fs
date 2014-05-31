@@ -22,7 +22,7 @@ function hasRole(roleRequired) {
   return compose()
     .use(isAuthenticated)
     .use(function(req, res, next) {
-      User.findById(req.user._id, function (err, user) {
+      User.findByAccountId(req.user._id, function (err, user) {
         if (err) return next(err);
         if (!user) return res.send(401);
 
@@ -35,6 +35,7 @@ function hasRole(roleRequired) {
       });
     });
 }
+
 
 exports.isAuthenticated = isAuthenticated;
 exports.hasRole = hasRole;

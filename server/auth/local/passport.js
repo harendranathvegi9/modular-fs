@@ -1,4 +1,4 @@
-exports.setup = function (User, config) {
+exports.setup = function (Account, config) {
   var passport = require('passport');
   var LocalStrategy = require('passport-local').Strategy;
 
@@ -7,18 +7,18 @@ exports.setup = function (User, config) {
       passwordField: 'password' // this is the virtual field on the model
     },
     function(email, password, done) {
-      User.findOne({
+      Account.findOne({
         email: email.toLowerCase()
-      }, function(err, user) {
+      }, function(err, account) {
         if (err) return done(err);
 
-        if (!user) {
+        if (!account) {
           return done(null, false, { message: 'This email is not registered.' });
         }
-        if (!user.authenticate(password)) {
+        if (!account.authenticate(password)) {
           return done(null, false, { message: 'This password is not correct.' });
         }
-        return done(null, user);
+        return done(null, account);
       });
     }
   ));

@@ -7,6 +7,8 @@
 
 var Thing = require('../../api/thing/thing.model');
 var User = require('../../api/user/user.model');
+var Account = require('../../api/user/account.model');
+var _ = require('lodash');
 
 Thing.find({}).remove(function() {
   Thing.create({
@@ -30,20 +32,35 @@ Thing.find({}).remove(function() {
   });
 });
 
-User.find({}).remove(function() {
-  User.create({
+
+User
+.find({}, function(err, docs){
+  _.invoke(docs, 'remove');
+});
+
+
+Account
+.find({}).remove(function() {
+  console.log('Start populating user and account');
+  
+  Account.create({
     provider: 'local',
-    name: 'Test User',
+    password: 'test',
     email: 'test@test.com',
-    password: 'test'
+    profile : {
+      name: 'Test User',
+      email: 'test@test.com'
+    }
   }, {
     provider: 'local',
-    role: 'admin',
-    name: 'Admin',
+    password: 'admin',
     email: 'admin@admin.com',
-    password: 'admin'
-  }, function() {
-      console.log('finished populating users');
+    profile : {
+      name: 'Admin',
+      email: 'admin@admin.com',
+      role: 'admin'
+    }
+  }, function(err) {      console.log('finished populating users');
     }
   );
 });
