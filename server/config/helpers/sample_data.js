@@ -33,34 +33,34 @@ Thing.find({}).remove(function() {
 });
 
 
-User
-.find({}, function(err, docs){
-  _.invoke(docs, 'remove');
-});
+// User
+// .find({}, function(err, docs){
+//   _.invoke(docs, 'remove');
+// });
 
 
-Account
-.find({}).remove(function() {
-  console.log('Start populating user and account');
+// Account
+// .find({}).remove(function() {
+//   console.log('Start populating user and account');
   
-  Account.create({
-    provider: 'local',
-    password: 'test',
-    email: 'test@test.com',
-    profile : {
-      name: 'Test User',
-      email: 'test@test.com'
-    }
-  }, {
-    provider: 'local',
-    password: 'admin',
-    email: 'admin@admin.com',
-    profile : {
-      name: 'Admin',
-      email: 'admin@admin.com',
-      role: 'admin'
-    }
-  }, function(err) {      console.log('finished populating users');
-    }
-  );
-});
+//   Account.create({
+//     provider: 'local',
+//     password: 'test',
+//     email: 'test@test.com',
+//     profile : {
+//       name: 'Test User',
+//       email: 'test@test.com'
+//     }
+//   }, {
+//     provider: 'local',
+//     password: 'admin',
+//     email: 'admin@admin.com',
+//     profile : {
+//       name: 'Admin',
+//       email: 'admin@admin.com',
+//       role: 'admin'
+//     }
+//   }, function(err) {      console.log('finished populating users');
+//     }
+//   );
+// });
