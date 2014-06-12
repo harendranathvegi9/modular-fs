@@ -3,6 +3,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var crypto = require('crypto');
+var _ = require('lodash');
 
 var authTypes = ['github', 'twitter', 'facebook', 'google'];
 
@@ -109,6 +110,45 @@ UserSchema
     else
       next();
   });
+
+/**
+ * Static methods
+ */
+
+UserSchema.static('findByProfileOrCreate',
+  _.curry(function(provider, profile, done) {
+      var User = mongoose.model('User');
+      var query = {'provider': provider};
+      query[provider+'.id'] = profile.id;
+
+      User.findOne(query, function(err, user) {
+            if (err) {
+              return done(err);
+            }
+            if (!user) {
+              console.log('create new user');
+              var userConfig = {
+                name: profile.displayName,
+                email: profile.emails[0].value,
+                role: 'user',
+                username: profile.username,
+                provider : provider
+              };
+              userConfig[provider] = profile._json;
+              console.log(userConfig);
+              user = new User(userConfig);
+              user.save(function(err) {
+                if (err) done(err);
+                return done(err, user);
+              });
+            } else {
+              console.log('existing user: '+user);
+              return done(err, user);
+            }
+          })
+    })
+    );
+
 
 /**
  * Methods

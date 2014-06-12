@@ -39,19 +39,22 @@ var all = {
   facebook: {
     clientID:     requiredProcessEnv('FACEBOOK_ID'),
     clientSecret: requiredProcessEnv('FACEBOOK_SECRET'),
-    callbackURL:  'http://localhost:9000/auth/facebook/callback'
+    callbackURL:  'http://localhost:9000/auth/facebook/callback',
+    scope:        requiredProcessEnv('FACEBOOK_SCOPE')
   },
 
   twitter: {
-    clientID:     requiredProcessEnv('TWITTER_ID'),
-    clientSecret: requiredProcessEnv('TWITTER_SECRET'),
-    callbackURL:  'http://localhost:9000/auth/twitter/callback'
+    consumerKey:    requiredProcessEnv('TWITTER_ID'),
+    consumerSecret: requiredProcessEnv('TWITTER_SECRET'),
+    callbackURL:    'http://localhost:9000/auth/twitter/callback',
+    scope:          null
   },
 
   google: {
     clientID:     requiredProcessEnv('GOOGLE_ID'),
     clientSecret: requiredProcessEnv('GOOGLE_SECRET'),
-    callbackURL:  'http://localhost:9000/auth/google/callback'
+    callbackURL:  'http://localhost:9000/auth/google/callback',
+    scope:        requiredProcessEnv('GOOGLE_SCOPE')
   }
 };
 
