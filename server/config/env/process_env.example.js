@@ -14,5 +14,10 @@ module.exports = {
   GOOGLE_SCOPE: [
       'https://www.googleapis.com/auth/userinfo.profile',
       'https://www.googleapis.com/auth/userinfo.email'
-    ]
+    ],
+  MAIL_TRANSPORT_METHOD: "", 
+  MAIL_SERVICE: "", // sets automatically host, port and connection security settings
+  MAIL_USER: "",
+  MAIL_PASS: "",
+  MAIL_FROM: "Modular Fullstack <modular@fullstack.org>" 
 }

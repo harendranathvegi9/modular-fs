@@ -10,6 +10,7 @@ var authTypes = ['github', 'twitter', 'facebook', 'google'];
 var UserSchema = new Schema({
   name: String,
   email: { type: String, lowercase: true },
+  emailChecked : { type: Boolean, default: false },
   role: {
     type: String,
     default: 'user'
@@ -111,6 +112,8 @@ UserSchema
       next();
   });
 
+
+
 /**
  * Static methods
  */
@@ -130,6 +133,7 @@ UserSchema.static('findByProfileOrCreate',
               var userConfig = {
                 name: profile.displayName,
                 email: profile.emails[0].value,
+                emailChecked : profile.emails[0].value ? true : false,
                 role: 'user',
                 username: profile.username,
                 provider : provider

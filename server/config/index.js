@@ -55,7 +55,18 @@ var all = {
     clientSecret: requiredProcessEnv('GOOGLE_SECRET'),
     callbackURL:  'http://localhost:9000/auth/google/callback',
     scope:        requiredProcessEnv('GOOGLE_SCOPE')
-  }
+  },
+
+  // Mail service configurations
+  
+  mail: { transport: requiredProcessEnv('MAIL_TRANSPORT_METHOD'),
+          service: requiredProcessEnv('MAIL_SERVICE'), // sets automatically host, port and connection security settings
+          auth: {
+              user: requiredProcessEnv('MAIL_USER'),
+              pass: requiredProcessEnv('MAIL_PASS')
+          },
+          from : requiredProcessEnv('MAIL_FROM')
+        }
 };
 
 // Export the config object based on the NODE_ENV
