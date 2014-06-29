@@ -3,8 +3,8 @@
 var User = require('./user.model');
 var passport = require('passport');
 var config = require('../../config');
+var mail = require('./../../mail');
 var jwt = require('jsonwebtoken');
-var Mail = require('./../../mail/mail.model');
 
 var validationError = function(res, err) {
   return res.json(422, err);
@@ -31,8 +31,8 @@ exports.create = function (req, res, next) {
   newUser.save(function(err, user) {
     if (err) return validationError(res, err);
     var token = jwt.sign({_id: user._id }, config.secrets.session, { expiresInMinutes: 60*5 });
+    mail.sendConfirmCode(user);
     res.json({ token: token });
-    Mail.create(newUser, next);
   });
 };
 
@@ -88,7 +88,7 @@ exports.me = function(req, res, next) {
   var userId = req.user._id;
   User.findOne({
     _id: userId
-  }, '-salt -hashedPassword', function(err, user) { // don't ever give out the password or salt
+  }, '-salt -hashedPassword -mailConfirmationCode', function(err, user) { // don't ever give out the password or salt
     if (err) return next(err);
     if (!user) return res.json(401);
     res.json(user);
@@ -100,4 +100,38 @@ exports.me = function(req, res, next) {
  */
 exports.authCallback = function(req, res, next) {
   res.redirect('/');
+};
+
+
+
+/**
+ * Confirm mail address
+ */
+exports.confirmMail = function(req, res, next) {
+  User.findOne({mailConfirmationCode : req.param('mailConfirmationCode')}, function(err, user){
+          if(err) return res.send(500, { message: err});
+          if (!user) return res.send(403, { message: 'Invalid mail confirmation code.' });
+          user.confirmedMail = true;
+          user.mailConfirmationCode = '';
+          user.save(function(err){
+            if (err) return res.send(500, { message: err });
+            var token = jwt.sign({_id: user._id }, config.secrets.session, { expiresInMinutes: 60*5 });
+            res.json({ token: token });
+          });
+        });
+
+};
+
+/**
+ * Send confirmation mail
+ */
+exports.sendMailconfirmationMail = function(req, res, next) {
+  var userId = req.user._id;
+  User.findOne({
+    _id: userId
+  }, '-salt -hashedPassword -passwordResetCode', function(err, user) { // don't ever give out the password or salt
+    if (err) return next(err);
+    if (!user) return res.json(401);
+    mail.sendConfirmCode(user, function(){res.send(200);});
+  });
 };

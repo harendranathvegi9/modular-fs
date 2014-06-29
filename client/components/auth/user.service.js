@@ -17,6 +17,12 @@ angular.module('ngApp')
         params: {
           id:'me'
         }
+      },
+      sendConfirmationMail: {
+        method: 'GET',
+        params: {
+          id:'sendConfirmMail'
+        }
       }
 	  });
   });

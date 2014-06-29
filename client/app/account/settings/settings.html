@@ -2,6 +2,9 @@
 
 <div class="container">
   <div class="row">
+    <div class="col-sm-12" ng-hide="isMailconfirmed()">
+      <div class="alert alert-warning" role="alert" >Your email address is not confirmed. Confirm <a href="/confirm">here</a></div>
+    </div>
     <div class="col-sm-12">
       <h1>Change Password</h1>
     </div>

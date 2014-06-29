@@ -59,7 +59,7 @@
                           <td>
 
                             <h1>Hi, <%=name%></h1>
-                            <p class="lead">Kick-start your next web app with Angular Fullstack</p>
+                            <p class="lead">Kick-start your next web app with <%=COMPANY%></p>
                             <img width="580" height="300" src="http://placehold.it/580x300">
 
                           </td>
@@ -81,9 +81,9 @@
                           <td>
 
                             
-                            <p>Welcome, and thank you for creating an account with angular-fullstack!
+                            <p>Welcome, and thank you for creating an account with <%=COMPANY%>!
 
-                              Please click on the button below to confirm your account. Once confirmed, you will have full access to angular-fullstack.</p>
+                              Please click on the button below to confirm your account. Once confirmed, you will have full access to <%=COMPANY%>.</p>
 
                           </td>
                           <td class="expander"></td>
@@ -97,22 +97,43 @@
 
                 <table class="row">
                   <tr>
-                    <td class="wrapper last">
+                    <td class="wrapper ">
 
-                      <table class="three columns">
+                      <table class="four columns">
                         <tr>
-                          <td>
+                          
+                        </tr>
+                      </table>
 
-                            <table class="button">
+                    </td>
+                    <td class="wrapper ">
+
+                      <table class="four columns">
+                        <tr>
+                          <td class="center">
+                            <center>
+                            <table class="button success round">
                               <tr>
                                 <td>
-                                  <a href="#">Click Me!</a>
+                                  
+                                  <a href="<%=CONFIRMATION_URL%><%=MAILCONFIRMATIONCODE%>">Click Me!</a>
+                                
                                 </td>
                               </tr>
                             </table>
-
+                            </center>
                           </td>
                           <td class="expander"></td>
+                        </tr>
+                      </table>
+
+                    </td>
+                    <td class="wrapper last">
+
+                      <table class="four columns">
+                        <tr>
+                          
+                          
                         </tr>
                       </table>
 
@@ -129,12 +150,18 @@
                           <td>
 
                             
-                            <p>If this button does not work, simply copy and paste this link into your web browser: localhost:9000/confirm
+                            <p>If this button does not work, simply copy and paste this link into your web browser: </p>
+                            <p>
+                            <a href="<%=CONFIRMATION_URL%>"><%=CONFIRMATION_URL%></a>
+                          </p>
+                            <p>
 
-                              and fill your email adress and following code: 
+                              and fill your email adress and following code:   <b><%=MAILCONFIRMATIONCODE%><b>
+
+                            </p>
 
 
-                              Thanks again for choosing angular-fullstack. Please do not hesitate to contact us if you have any questions or suggestions.
+                              Thanks again for choosing <%=COMPANY%>. Please do not hesitate to contact us if you have any questions or suggestions.
 
                               If you did not create an account with us and have received this message as an error, please disregard this message. </p>
 
@@ -156,7 +183,7 @@
                           <td>
 
                             
-                            <p>Thanks again for choosing angular-fullstack. Please do not hesitate to contact us if you have any questions or suggestions.
+                            <p>Thanks again for choosing <%=COMPANY%>. Please do not hesitate to contact us if you have any questions or suggestions.
 
                               If you did not create an account with us and have received this message as an error, please disregard this message. </p>
 

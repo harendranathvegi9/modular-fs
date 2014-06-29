@@ -3,14 +3,45 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var crypto = require('crypto');
+var bases = require('bases');
 var _ = require('lodash');
 
 var authTypes = ['github', 'twitter', 'facebook', 'google'];
 
+var reliableProvider = ['github', 'facebook', 'google'];
+
+function randomStr(length) {
+    // We generate a random number in a space at least as big as 62^length,
+    // and if it's too big, we just retry. This is still statistically O(1)
+    // since repeated probabilities less than one converge to zero. Hat-tip to
+    // a Google interview for teaching me this technique! ;)
+ 
+    // The native randomBytes() returns an array of bytes, each of which is
+    // effectively a base-256 integer. We derive the number of bytes to
+    // generate based on that, but note that it can overflow after ~150:
+    var maxNum = Math.pow(62, length);
+    var numBytes = Math.ceil(Math.log(maxNum) / Math.log(256));
+
+    if (numBytes === Infinity) {
+        throw new Error('Length too large; caused overflow: ' + length);
+    }
+ 
+    do {
+        var bytes = crypto.randomBytes(numBytes);
+        var num = 0
+        for (var i = 0; i < bytes.length; i++) {
+            num += Math.pow(256, i) * bytes[i];
+        }
+    } while (num >= maxNum);
+ 
+    return bases.toBase62(num);
+};
+
 var UserSchema = new Schema({
   name: String,
   email: { type: String, lowercase: true },
-  emailChecked : { type: Boolean, default: false },
+  confirmedMail : { type: Boolean, default: false },
+  mailConfirmationCode : {type: String},
   role: {
     type: String,
     default: 'user'
@@ -44,7 +75,8 @@ UserSchema
   .get(function() {
     return {
       'name': this.name,
-      'role': this.role
+      'role': this.role,
+      'confirmedMail' : this.confirmedMail
     };
   });
 
@@ -105,6 +137,15 @@ var validatePresenceOf = function(value) {
 UserSchema
   .pre('save', function(next) {
     if (!this.isNew) return next();
+
+    if (reliableProvider.indexOf(this.provider) !== -1) 
+    {
+      this.confirmedMail = true;
+    } else 
+    {
+      this.mailConfirmationCode = randomStr(16);
+    }
+    
 
     if (!validatePresenceOf(this.hashedPassword) && authTypes.indexOf(this.provider) === -1)
       next(new Error('Invalid password'));

@@ -11,6 +11,14 @@ angular.module('ngApp')
         templateUrl: 'app/account/signup/signup.html',
         controller: 'SignupCtrl'
       })
+      .when('/confirm', {
+        templateUrl: 'app/account/confirm/confirm.html',
+        controller: 'ConfirmCtrl',
+      })
+      .when('/confirm/:confirmCode', {
+        templateUrl: 'app/account/confirm/confirm.html',
+        controller: 'ConfirmCtrl'
+      })
       .when('/settings', {
         templateUrl: 'app/account/settings/settings.html',
         controller: 'SettingsCtrl',

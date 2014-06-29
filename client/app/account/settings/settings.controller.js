@@ -1,8 +1,9 @@
 'use strict';
 
 angular.module('ngApp')
-  .controller('SettingsCtrl', function ($scope, User, Auth) {
+  .controller('SettingsCtrl', function ($scope, Auth) {
     $scope.errors = {};
+    $scope.isMailconfirmed = Auth.isMailconfirmed;
 
     $scope.changePassword = function(form) {
       $scope.submitted = true;

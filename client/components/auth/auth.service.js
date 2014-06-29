@@ -115,6 +115,62 @@ angular.module('ngApp')
        */
       isAdmin: function() {
         return currentUser.role === 'admin';
+      },
+
+      /**
+       * Confirm mail
+       *
+       * @param  {String}   mailConfirmationCode
+       * @param  {Function} callback    - optional
+       * @return {Promise}
+       */
+      confirmMail: function(mailConfirmationCode, callback) {
+        var cb = callback || angular.noop;
+        var deferred = $q.defer();
+
+        $http.post('/api/users/confirm', {
+          mailConfirmationCode: mailConfirmationCode
+        }).
+        success(function(data) {
+          $cookieStore.put('token', data.token);
+          currentUser = User.get();
+          deferred.resolve(data);
+          return cb();
+        }).
+        error(function(err) {
+          deferred.reject(err);
+          return cb(err);
+        }.bind(this));
+
+        return deferred.promise;
+      },
+
+      /**
+       * Check if a user's mail is confirmed
+       *
+       * @return {Boolean}
+       */
+      isMailconfirmed: function() {
+        console.log('Current user: ');
+        console.log(currentUser);
+        return currentUser.confirmedMail;
+      },
+
+      /**
+       * Confirm mail
+       *
+       * @param  {Function} callback    - optional
+       * @return {Promise}
+       */
+      sendConfirmationMail: function(callback) {
+        var cb = callback || angular.noop;
+
+        return User.sendConfirmationMail(function(user) {
+          return cb(user);
+        }, function(err) {
+          return cb(err);
+        }).$promise;
       }
+
     };
   });

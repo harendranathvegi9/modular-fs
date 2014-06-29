@@ -10,6 +10,8 @@ var router = express.Router();
 router.get('/', access.hasRole('admin'), controller.index);
 router.delete('/:id', access.hasRole('admin'), controller.destroy);
 router.get('/me', access.isAuthenticated, controller.me);
+router.post('/confirm', controller.confirmMail);
+router.get('/sendConfirmMail', access.isAuthenticated, controller.sendMailconfirmationMail);
 router.put('/:id/password', access.isAuthenticated, controller.changePassword);
 router.get('/:id', access.isAuthenticated, controller.show);
 router.post('/', controller.create);
