@@ -135,3 +135,24 @@ exports.sendMailconfirmationMail = function(req, res, next) {
     mail.sendConfirmCode(user, function(){res.send(200);});
   });
 };
+
+/**
+ * Send confirmation mail
+ */
+exports.sendPwdResetMail = function(req, res, next) {
+  
+  var email = req.param('email');
+  console.log('Reset mail: '+email);
+  User.findOne({
+    email: email,
+    provider: 'local'
+  }, '-salt -hashedPassword -passwordResetCode', function(err, user) { // don't ever give out the password or salt
+    if (err) return next(err);
+    if (!user) return res.json(401);
+    user.setPwResetCode(function(err, user){
+      mail.sendPwResetCode(user, function(){res.send(200);})
+    });
+  });
+};
+
+

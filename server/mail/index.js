@@ -33,6 +33,7 @@ var sendmail = function(templateName, locals, callback) {
               if (err) {
                 cb(err);
               } else {
+                console.log('Mail was sended')
                 cb(responseStatus.message);
               }
             });
@@ -57,5 +58,23 @@ exports.sendConfirmCode = function(user, callback){
 
 
   sendmail('mail_confirmation', mailOptions, callback);
+
+};
+
+
+exports.sendPwResetCode = function(user, callback){
+  console.log('Send Password Reset Mail');
+
+  var mailOptions = {
+  to: user.email,
+  subject: "Password reset",
+  name:user.name,
+  COMPANY: 'angular-fullstack',
+  PWDRESET_URL : 'http://localhost:9000/pwdreset/',
+  PWDRESETCODE : user.passwordResetCode
+  };
+
+
+  sendmail('pwd_reset', mailOptions, callback);
 
 };

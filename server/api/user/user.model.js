@@ -42,6 +42,7 @@ var UserSchema = new Schema({
   email: { type: String, lowercase: true },
   confirmedMail : { type: Boolean, default: false },
   mailConfirmationCode : {type: String},
+  passwordResetCode : {type: String, default: ''},
   role: {
     type: String,
     default: 'user'
@@ -231,7 +232,20 @@ UserSchema.methods = {
     if (!password || !this.salt) return '';
     var salt = new Buffer(this.salt, 'base64');
     return crypto.pbkdf2Sync(password, salt, 10000, 64).toString('base64');
+  },
+
+  /**
+   * Set random password reset code
+   *
+   * @param {Function} callback
+   */
+  setPwResetCode: function(callback) {
+    var user = this;
+    user.passwordResetCode = randomStr(16);
+    user.save(callback);
   }
+
+
 };
 
 module.exports = mongoose.model('User', UserSchema);
