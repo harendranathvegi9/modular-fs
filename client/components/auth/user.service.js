@@ -23,6 +23,12 @@ angular.module('ngApp')
         params: {
           id:'sendConfirmMail'
         }
+      },
+      sendPwdResetMail: {
+        method: 'POST',
+        params: {
+          controller:'sendPwdResetMail'
+        }
       }
 	  });
   });

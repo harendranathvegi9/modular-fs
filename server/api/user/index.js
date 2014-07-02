@@ -12,7 +12,7 @@ router.delete('/:id', access.hasRole('admin'), controller.destroy);
 router.get('/me', access.isAuthenticated, controller.me);
 router.post('/confirm', controller.confirmMail);
 router.get('/sendConfirmMail', access.isAuthenticated, controller.sendMailconfirmationMail);
-router.get('/sendPwdResetMail/:email', controller.sendPwdResetMail);
+router.post('/sendPwdResetMail', controller.sendPwdResetMail);
 router.put('/:id/password', access.isAuthenticated, controller.changePassword);
 router.get('/:id', access.isAuthenticated, controller.show);
 router.post('/', controller.create);

@@ -19,6 +19,14 @@ angular.module('ngApp')
         templateUrl: 'app/account/confirm/confirm.html',
         controller: 'ConfirmCtrl'
       })
+      .when('/pwdreset', {
+        templateUrl: 'app/account/pwdreset/pwdreset.html',
+        controller: 'PwdResetCtrl',
+      })
+      .when('/pwdreset/:pwdresetCode', {
+        templateUrl: 'app/account/pwdreset/pwdreset.html',
+        controller: 'PwdResetCtrl'
+      })
       .when('/settings', {
         templateUrl: 'app/account/settings/settings.html',
         controller: 'SettingsCtrl',

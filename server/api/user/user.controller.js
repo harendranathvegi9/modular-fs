@@ -140,7 +140,6 @@ exports.sendMailconfirmationMail = function(req, res, next) {
  * Send confirmation mail
  */
 exports.sendPwdResetMail = function(req, res, next) {
-  
   var email = req.param('email');
   console.log('Reset mail: '+email);
   User.findOne({

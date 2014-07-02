@@ -1,0 +1,42 @@
+<div ng-include="'components/navbar/navbar.html'"></div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12">
+      <h1>Password forgotten?</h1>
+      <p>Submit your email address </p>
+    </div>
+    <div class="col-sm-12">
+      <form class="form" name="resetform" ng-submit="sendPwdResetMail(resetform)" novalidate>
+
+        <div class="form-group">
+          <label>Email address</label>
+
+
+          <input type="email" name="email" class="form-control" ng-model="reset.email"
+                 required
+                 mongoose-error/>
+        </div>
+
+
+        <div class="form-group has-error">
+          <p class="help-block" ng-show="resetform.email.$error.required && pwdResetMailSend">
+             Please enter your email confirmation code.
+          </p>
+          <p class="help-block">{{ errors.other }}</p>
+        </div>
+
+        <div class="col-sm-6">
+          <button class="btn btn-inverse btn-lg btn-primary" type="submit">
+            Submit email address
+          </button>
+        </div>
+
+
+      </form>
+
+
+    </div>
+  </div>
+  <hr>
+</div>

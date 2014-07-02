@@ -91,6 +91,25 @@ angular.module('ngApp')
       },
 
       /**
+       * Send Reset password Mail
+       *
+       * @param  {String}   email address
+       * @param  {Function} callback    - optional
+       * @return {Promise}
+       */
+      sendPwdResetMail: function(email, callback) {
+        var cb = callback || angular.noop;
+        console.log('email :'+email);
+        return User.sendPwdResetMail({
+          email: email
+        }, function(user) {
+          return cb(user);
+        }, function(err) {
+          return cb(err);
+        }).$promise;
+      },
+
+      /**
        * Gets all available info on authenticated user
        *
        * @return {Object} user
