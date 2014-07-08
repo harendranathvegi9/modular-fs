@@ -29,6 +29,12 @@ angular.module('ngApp')
         params: {
           controller:'sendPwdResetMail'
         }
+      },
+      changeResetedPassword: {
+        method: 'POST',
+        params: {
+          controller:'changeResetedPassword'
+        }
       }
 	  });
   });

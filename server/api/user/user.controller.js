@@ -88,7 +88,7 @@ exports.me = function(req, res, next) {
   var userId = req.user._id;
   User.findOne({
     _id: userId
-  }, '-salt -hashedPassword -mailConfirmationCode', function(err, user) { // don't ever give out the password or salt
+  }, '-salt -hashedPassword -mailConfirmationCode -passwordResetCode', function(err, user) { // don't ever give out the password or salt
     if (err) return next(err);
     if (!user) return res.json(401);
     res.json(user);
@@ -146,11 +146,45 @@ exports.sendPwdResetMail = function(req, res, next) {
     email: email,
     provider: 'local'
   }, '-salt -hashedPassword -passwordResetCode', function(err, user) { // don't ever give out the password or salt
+    
     if (err) return next(err);
-    if (!user) return res.json(401);
-    user.setPwResetCode(function(err, user){
-      mail.sendPwResetCode(user, function(){res.send(200);})
-    });
+    if (user) {
+      console.log('one user: '+user);
+      user.setPwResetCode(function(err, user){
+        mail.sendPwResetCode(user, function(){res.send(200);})
+      });
+    }
+    else {
+      console.log('no user: '+user);
+      return res.json(400, { error: 'message' });
+    }
+  });
+};
+
+/**
+ * Reset and change password
+ */
+exports.changeResetedPassword= function(req, res, next) {
+
+  var newPassword = String(req.body.newPassword);
+  var passwordResetCode = String(req.body.passwordResetCode);
+
+  console.log('passwordResetCode: ' + passwordResetCode);
+  console.log('newPassword: '+newPassword);
+
+  User.findOne({passwordResetCode: passwordResetCode}, function (err, user) {
+    if (user) {
+      console.log(user);
+      user.password = newPassword;
+      user.passwordResetCode = '';
+      user.save(function(err) {
+        if (err) return validationError(res, err);
+        var token = jwt.sign({_id: user._id }, config.secrets.session, { expiresInMinutes: 60*5 });
+        res.json({ token: token });
+      });
+    } else {
+      res.send(400);
+    }
   });
 };
 

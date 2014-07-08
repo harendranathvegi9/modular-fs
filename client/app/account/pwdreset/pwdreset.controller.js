@@ -4,54 +4,56 @@ angular.module('ngApp')
   .controller('PwdResetCtrl', function ($scope, Auth, $location, $routeParams) {
     $scope.errors = {};
     $scope.isLoggedIn = Auth.isLoggedIn;
+    var pwdresetCode = $routeParams.pwdresetCode;
+    var pwdResetState = 'mailform';
     $scope.pwdResetMailSend = false;
+    $scope.invalidResetCode = false;
+    $scope.unknownMailAddress = false;
 
-    if ($routeParams.confirmCode) {
-      Auth.confirmMail( $routeParams.confirmCode
-        )
-        .then( function() {
-          // Logged in, redirect to home
-          $location.path('/');
-        })
-        .catch( function(err) {
-          $scope.errors.other = err.message;
-        });
+
+    if (pwdresetCode) {
+      pwdResetState = 'passwordform';
     }
 
-    $scope.confirm = function(form) {
-      $scope.submitted = true;
 
+    $scope.sendPwdResetMail = function(form) {
+      $scope.submitted = true;
+      $scope.unknownMailAddress = false;
       if(form.$valid) {
-        Auth.confirmMail($scope.reset.email
-        )
+        $scope.pwdResetMailSend = true;
+        Auth.sendPwdResetMail( $scope.reset.email )
         .then( function() {
-          // Logged in, redirect to home
-          $location.path('/');
+          pwdResetState = 'mailsent';
+          $scope.message = 'Password successfully changed.';
         })
         .catch( function(err) {
-          $scope.errors.other = err.message;
+          $scope.unknownMailAddress = true;
+          $scope.message = '';
+          $scope.pwdResetMailSend = false;
         });
       }
     };
 
-    $scope.sendPwdResetMail = function(form) {
-      $scope.pwdResetMailSend = true;
-      console.log($scope.reset.email);
+    $scope.changeResetedPassword = function(form) {
+      $scope.submitted = true;
       if(form.$valid) {
-        Auth.sendPwdResetMail( $scope.reset.email )
+        Auth.changeResetedPassword( pwdresetCode, $scope.user.newPassword )
         .then( function() {
           $scope.message = 'Password successfully changed.';
+          $location.path('/');
         })
-        .catch( function() {
-          form.password.$setValidity('mongoose', false);
-          $scope.errors.other = 'Incorrect password';
+        .catch( function(err) {
+          //form.password.$setValidity('mongoose', false);
+          console.log(err);
+          $scope.invalidResetCode = true;
           $scope.message = '';
         });
       }
     };
 
-    $scope.pwdResetMailSend = function() {
-      return pwdResetMailSend;
+
+    $scope.resetStateIs = function(state) {
+      return pwdResetState===state;
     };
 
 

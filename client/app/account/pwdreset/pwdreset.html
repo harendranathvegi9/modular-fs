@@ -1,7 +1,7 @@
 <div ng-include="'components/navbar/navbar.html'"></div>
 
-<div class="container">
-  <div class="row">
+<div class="container" ng-show="resetStateIs('mailform')">
+  <div class="row" >
     <div class="col-sm-12">
       <h1>Password forgotten?</h1>
       <p>Submit your email address </p>
@@ -20,23 +20,63 @@
 
 
         <div class="form-group has-error">
-          <p class="help-block" ng-show="resetform.email.$error.required && pwdResetMailSend">
+          <p class="help-block" ng-show="resetform.email.$error.email && submitted">
+            Doesn't look like a valid email.
+          </p>
+          <p class="help-block" ng-show="resetform.email.$error.required && submitted">
              Please enter your email confirmation code.
           </p>
           <p class="help-block">{{ errors.other }}</p>
         </div>
 
+        <div class="help-block" ng-show="unknownMailAddress">
+          <p>The email address you entered is not known.</p>
+          <p>check the address and send it again.</p>
+        </div>
+
         <div class="col-sm-6">
-          <button class="btn btn-inverse btn-lg btn-primary" type="submit">
+          <button class="btn btn-inverse btn-lg btn-primary" ng-disabled="pwdResetMailSend" type="submit">
             Submit email address
           </button>
         </div>
 
 
       </form>
-
-
     </div>
   </div>
   <hr>
+</div>
+
+<div class="container" ng-show="resetStateIs('mailsent')">
+  <div class="alert alert-success" role="alert">
+  <h1>Almost there</h1>
+  <p>A mail with some instructions to reset your password was sent to <b>{{reset.email}}</b>.</p>
+  <p>Check your inbox.</p>
+  </div>
+</div>
+
+<div class="container" ng-show="resetStateIs('passwordform')">
+  <h1>Change your password</h1>
+  <div class="col-sm-12">
+      <form class="form" name="form" ng-submit="changeResetedPassword(form)" novalidate>
+
+        <div class="form-group">
+          <label>New Password</label>
+
+          <input type="password" name="newPassword" class="form-control" ng-model="user.newPassword"
+                 ng-minlength="3"
+                 required/>
+          <p class="help-block"
+             ng-show="(form.newPassword.$error.minlength || form.newPassword.$error.required) && (form.newPassword.$dirty || submitted)">
+            Password must be at least 3 characters.
+          </p>
+        </div>
+
+        <div class="help-block" ng-show="invalidResetCode">
+          <p>Your password reset code may be invalid.</p>
+          <p>Check the instructions in your inbox or request another reset code <a href="/pwdreset">here</a></p>
+        </div>
+
+        <button class="btn btn-lg btn-primary" type="submit">Save changes</button>
+      </form>
 </div>

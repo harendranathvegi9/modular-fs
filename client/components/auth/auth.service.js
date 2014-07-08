@@ -110,6 +110,32 @@ angular.module('ngApp')
       },
 
       /**
+       * Change reseted password
+       *
+       * @param  {String}   pwdresetCode
+       * @param  {String}   newPassword
+       * @param  {Function} callback    - optional
+       * @return {Promise}
+       */
+      changeResetedPassword: function(pwdresetCode, newPassword, callback) {
+        var cb = callback || angular.noop;
+        console.log('pwdresetCode: '+ pwdresetCode);
+
+        return User.changeResetedPassword({
+          passwordResetCode: pwdresetCode,
+          newPassword: newPassword
+        }, function(data) {
+          console.log('data: ');
+          console.log(data);
+          $cookieStore.put('token', data.token);
+          currentUser = User.get();
+          return cb(data);
+        }, function(err) {
+          return cb(err);
+        }).$promise;
+      },
+
+      /**
        * Gets all available info on authenticated user
        *
        * @return {Object} user
