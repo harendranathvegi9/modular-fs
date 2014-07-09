@@ -13,8 +13,7 @@ exports.authenticate = function(req, res, next) {
     var error = err || info;
     if (error) return res.json(401, error);
     if (!user) return res.json(401, { message: 'Something went wrong, please try again.'});
-
-    var token = jwt.sign({_id: user._id }, config.secrets.session, { expiresInMinutes: 60*5 });
+    var token = jwt.sign({_id: user._id }, config.secrets.session, { expiresInMinutes: req.body.rememberme ? 60*24*7 : 60*5 });
     res.json({ token: token });
   })(req, res, next);
 }
@@ -24,7 +23,7 @@ exports.authenticate = function(req, res, next) {
  */
 exports.setToken = function(req, res, next) {
   if (!req.user) return res.json(401, { message: 'Something went wrong, please try again.'});
-  var token = jwt.sign({_id: req.user._id }, config.secrets.session, { expiresInMinutes: 60*5 });
+  var token = jwt.sign({_id: req.user._id }, config.secrets.session, { expiresInMinutes: req.body.rememberme ? 60*24*7 : 60*5 });
   res.cookie('token', JSON.stringify(token));
   res.redirect('/');
 }
