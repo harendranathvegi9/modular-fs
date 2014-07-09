@@ -1,9 +1,9 @@
 'use strict';
 
 angular.module('ngApp')
-  .factory('Auth', function Auth($location, $rootScope, $http, User, $cookieStore, $q) {
+  .factory('Auth', function Auth($location, $rootScope, $http, User, $localStorage, $q) {
 
-    var currentUser = $cookieStore.get('token') ? User.get() : {};
+    var currentUser = $localStorage.token ? User.get() : {};
 
     return {
 
@@ -23,7 +23,7 @@ angular.module('ngApp')
           password: user.password
         }).
         success(function(data) {
-          $cookieStore.put('token', data.token);
+          $localStorage.token = data.token;
           currentUser = User.get();
           deferred.resolve(data);
           return cb();
@@ -43,7 +43,7 @@ angular.module('ngApp')
        * @param  {Function}
        */
       logout: function() {
-        $cookieStore.remove('token');
+        ipCookie.remove('token');
         currentUser = {};
       },
 
@@ -59,7 +59,7 @@ angular.module('ngApp')
 
         return User.save(user,
           function(data) {
-            $cookieStore.put('token', data.token);
+            $localStorage.token = data.token;
             currentUser = User.get();
             return cb(user);
           },
