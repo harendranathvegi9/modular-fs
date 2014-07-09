@@ -1,9 +1,9 @@
 'use strict';
 
 angular.module('ngApp')
-  .factory('Auth', function Auth($location, $rootScope, $http, User, $localStorage, $q) {
+  .factory('Auth', function Auth($location, $rootScope, $http, User, $localStorage, $sessionStorage, $q) {
 
-    var currentUser = $localStorage.token ? User.get() : {};
+    var currentUser = ($localStorage.token||$sessionStorage.token) ? User.get() : {};
 
     return {
 
@@ -20,10 +20,16 @@ angular.module('ngApp')
 
         $http.post('/auth/local', {
           email: user.email,
-          password: user.password
+          password: user.password,
+          rememberme : user.rememberme
         }).
         success(function(data) {
-          $localStorage.token = data.token;
+          if (user.rememberme) {
+            $localStorage.token = data.token;
+          } else {
+            $sessionStorage.token = data.token;
+          }
+
           currentUser = User.get();
           deferred.resolve(data);
           return cb();
@@ -43,7 +49,8 @@ angular.module('ngApp')
        * @param  {Function}
        */
       logout: function() {
-        ipCookie.remove('token');
+        delete $localStorage.token;
+        delete $sessionStorage.token;
         currentUser = {};
       },
 
@@ -59,7 +66,7 @@ angular.module('ngApp')
 
         return User.save(user,
           function(data) {
-            $localStorage.token = data.token;
+            $sessionStorage.token = data.token;
             currentUser = User.get();
             return cb(user);
           },

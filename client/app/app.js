@@ -17,13 +17,13 @@ angular.module('ngApp', [
     $httpProvider.interceptors.push('authInterceptor');
   })
 
-  .factory('authInterceptor', function ($rootScope, $q, $localStorage, $location) {
+  .factory('authInterceptor', function ($rootScope, $q, $localStorage, $sessionStorage, $location) {
     return {
       // Add authorization token to headers
       request: function (config) {
         config.headers = config.headers || {};
-        if ($localStorage.token) {
-          config.headers.Authorization = 'Bearer ' + $localStorage.token;
+        if ($localStorage.token||$sessionStorage.token) {
+          config.headers.Authorization = 'Bearer ' + ($localStorage.token||$sessionStorage.token);
         }
         return config;
       },
